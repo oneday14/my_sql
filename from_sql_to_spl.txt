@@ -1,0 +1,59 @@
+## https://docs.splunk.com/Documentation/Splunk/7.2.0/SearchReference/SQLtoSplunk
+
+* from
+  --> source
+  ex) select * from tb
+      --> source=tb
+      
+ * where
+   ex) select * from tb
+       where col=5
+       --> source=tb
+           col=5
+           
+* select
+  ex) select col1, col2 from tb
+      --> source=tb
+          | fields col1, col2
+            
+* and/or
+  ex) select * from tb
+      where (col1="true" or col2="red")
+      and col3="blue"
+      --> source tb
+          and (col1="true" or col2="red")   # and 생략 가능
+          and col3="blue"                   # and 생략 가능
+      --> source tb
+          (col1="true" or col2="red") 
+          col3="blue"                
+          
+* as
+  --> rename 컬럼명 as 별칭
+  ex) select col as col_alias from tb
+      --> source=tb
+          | rename col as col_alias
+          | fields col_alias
+          
+* between
+  ex) select * from tb
+      where col
+      between 1 and 5
+      --> source tb
+            col>=1 col<=5
+
+* groupby
+  --> stats 함수(컬럼명) by 그룹화기준컬럼명
+  ex) select col, avg(col) from tb
+      where col=5
+      group by col
+      --> source tb
+          col=5
+          | stats avg(col) by col
+          | fields col, avg(col)
+          
+* having
+  --> select col, avg(col) from tb
+      where col=5
+      group by col
+      having avg(col)=3
+
