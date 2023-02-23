@@ -52,8 +52,74 @@
           | fields col, avg(col)
           
 * having
-  --> select col, avg(col) from tb
+  --> search
+  ex) select col, avg(col) from tb
       where col=5
       group by col
       having avg(col)=3
+      --> source=tb
+          col=5
+          | stats avg(col) by col
+          | search avg(col)=3
+          | fields col, avg(col)
 
+* like
+  ex) select * from tb
+      where col lile "%text%"
+      --> source tb
+            col="%text%"   # col지정 안하면 전체 컬럼에서 찾음
+      --> source tb "%text%"
+      
+* order by
+  --> sort
+  ex) select * from tb
+      order by col desc
+      --> source=tb
+          | sort -col
+          
+* distinct
+  --> dedup
+  ex) select distinct col1, col2 from tb
+      --> source=tb
+          | dedup col1, col2
+          | fields col1, col2
+          
+* top, limit
+  --> head
+  ex) select top(5) col1, col2 from tb
+      where col3="true"
+      order by col1, col2
+      --> source=tb
+          col3="true"
+          | fields col1, col2
+          | sort col1, col2
+          | head 5
+
+* join
+  ** inner
+     --> type=inner
+     ex) select * from tb1
+         inner join tb2
+         on tb1.col = tb2.col
+         --> source=tb1
+             | join type=inner col
+               [search source=tb2]  
+  ** left (outer)
+     --> type=left
+     ex) select * from tb1
+         left join tb2
+         on tb1.col = tb2.col
+         --> source=tb1
+             | join type=left col
+               [search source=tb2] 
+     
+* union
+  --> append
+  ex) select col from tb1
+      union
+      select col from tb2
+      --> source=tb
+          | append
+            [search source=tb2]
+          | dedup col
+          
